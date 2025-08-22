@@ -1,11 +1,11 @@
 ---
-ntp_server: 192.168.0.106
-http_server: 192.168.0.106
+ntp_server: 192.168.0.111
+http_server: 192.168.0.111
 dns_server: 
-  - 192.168.0.106
+  - 192.168.0.111
 k8s_version: 1.29
-nic_name: "ens3"
+nic_name: "ens33"
 k8s_master:
-  - { ip: "192.168.0.106", hostname: "oe2203p4-129-m01" }
+  - { ip: "192.168.0.111", hostname: "oe2203p4-129-m01" }
 #  - { ip: "192.168.161.33", hostname: "oe2203sp4-129-m02" }
 #  - { ip: "192.168.161.34", hostname: "oe2203sp4-129-m03" }

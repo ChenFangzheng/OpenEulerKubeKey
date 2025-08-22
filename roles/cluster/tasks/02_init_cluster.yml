@@ -13,7 +13,6 @@
       --control-plane-endpoint {{ control_plane_endpoint }} \
       --apiserver-advertise-address {{ inventory_hostname }} \
       --cri-socket {{ cri_socket }} \
-      --image-repository {{ image_repository }} \
       --upload-certs | tee /tmp/kubeadm-init.log
   when: (is_init is defined) and (is_init == 1)
 

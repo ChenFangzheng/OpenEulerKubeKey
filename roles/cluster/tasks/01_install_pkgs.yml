@@ -8,13 +8,44 @@
     state: present
   when: is_worker == 1
 
+
+
+# 新增任务：加载本地Kubernetes镜像
+- name: 复制本地镜像文件到目标节点
+  copy:
+    src: "{{ playbook_dir }}/images/{{ item }}"
+    dest: "/tmp/{{ item }}"
+    mode: 0644
+  with_items:
+    - "kube-apiserver-v1.29.3.tar"
+    - "kube-controller-manager-v1.29.3.tar"
+    - "kube-scheduler-v1.29.3.tar"
+    - "kube-proxy-v1.29.3.tar"
+    - "pause-3.9.tar"
+    - "etcd-3.5.9-0.tar"
+    - "coredns-v1.10.1.tar"
+  when: is_worker == 1  # 所有节点都需要加载
+
+- name: 加载本地镜像到Docker
+  shell: "docker load -i /tmp/{{ item }}"
+  with_items:
+    - "kube-apiserver-v1.29.3.tar"
+    - "kube-controller-manager-v1.29.3.tar"
+    - "kube-scheduler-v1.29.3.tar"
+    - "kube-proxy-v1.29.3.tar"
+    - "pause-3.9.tar"
+    - "etcd-3.5.9-0.tar"
+    - "coredns-v1.10.1.tar"
+  when: is_worker == 1  # 所有节点都需要加载
+
+
 - name: Install kubectl
   dnf: 
     name: kubectl
     state: present
   when: is_master == 1
 
-- name: Kubelet use systemd cgroup driver
+- name: Kubelet configuration
   copy: 
     src: kubelet
     dest: /etc/sysconfig/kubelet
