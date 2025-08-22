@@ -12,8 +12,8 @@ images=(
   "kube-scheduler:${K8S_VERSION}"
   "kube-proxy:${K8S_VERSION}"
   "pause:3.9"
-  "etcd:3.5.9-0"
-  "coredns:v1.10.1"
+  "etcd:3.5.16-0"
+  "coredns:v1.11.1"
 )
 
 # 检查基础网络连接
