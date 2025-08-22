@@ -17,9 +17,7 @@
   roles:
     # Prepare os environment
     - init
-    # Install container runtime for k8s 可选
-#    - containerd
-    # Install docker runtime for k8s 可选
+    # Install docker runtime for k8s
     - docker
     # # Install kubeadm and create k8s cluster
     - cluster
