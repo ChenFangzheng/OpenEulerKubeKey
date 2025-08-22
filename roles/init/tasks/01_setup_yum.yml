@@ -1,0 +1,32 @@
+---
+- name: Delete existed files in directory
+  file: 
+    path: /etc/yum.repos.d
+    mode: 0755
+    state: "{{ item }}"
+  loop:
+    - absent
+    - directory
+
+- name: Get repo file - openEuler.repo
+  copy: 
+    src: "openEuler.repo"
+    dest: "/etc/yum.repos.d/openEuler.repo"
+
+- name: Get repo file - k8s.repo
+  template:
+    src: k8s-repo.j2
+    dest: /etc/yum.repos.d/k8s.repo
+
+# - name: Set up openEuler 22.03 LTS SP1 repository
+#   shell: |
+#     curl http://192.168.161.1/openEuler-22.03-LTS-SP2.repo \
+#       -o /etc/yum.repos.d/openEuler-22.03-LTS-SP1.repo
+
+# - name: Set up kubernetes repository
+#   shell: |
+#     curl http://192.168.161.1/kubernetes-v{{ k8s_version }}.repo \
+#       -o /etc/yum.repos.d/kubernetes-v{{ k8s_version }}.repo
+
+- name: Yum makecache
+  command: yum makecache

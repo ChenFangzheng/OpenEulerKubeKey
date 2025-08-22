@@ -1,0 +1,13 @@
+---
+- include: 00_check_os_version.yml
+- include: 01_setup_yum.yml
+- include: 02_install_pkgs.yml
+- include: 03_setup_ntp.yml
+- include: 04_disable_selinux.yml
+- include: 05_disable_firewall.yml
+- include: 06_disable_swap.yml
+- include: 07_hosts_dns.yml
+- include: 08_import_ca_cert.yml
+- include: 09_setup_ipvs.yml
+- include: 10_setup_nm.yaml
+- include: 99_fix_bugs.yml

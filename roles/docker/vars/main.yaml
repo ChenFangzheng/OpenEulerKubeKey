@@ -1,0 +1,3 @@
+---
+# cri-dockerd 版本（需与 Kubernetes 1.29 兼容，建议 v0.3.4+）
+cri_dockerd_version: "0.3.4"

@@ -1,0 +1,17 @@
+---
+- name: Add other master to cluster
+  shell: |
+    kubeadm join {{ control_plane_endpoint }} \
+      --token {{ kubeadm_token[0] }} \
+      --discovery-token-ca-cert-hash {{ discovery_tocken_ca_cert_hash[0] }} \
+      --control-plane \
+      --certificate-key {{ certificate_key[0] }}
+  when: (is_master == 1) and (is_init is undefined)
+
+- name: Create kube config for all master
+  shell: |
+    mkdir -p $HOME/.kube && \
+    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && \
+    sudo chown $(id -u):$(id -g) $HOME/.kube/config && \
+    kubectl completion bash > /etc/bash_completion.d/kubectl
+  when: is_master == 1

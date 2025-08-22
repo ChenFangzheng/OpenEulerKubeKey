@@ -1,0 +1,44 @@
+---
+- name: Remove ntp package
+  dnf:
+    name: 
+      - ntp
+#      - chrony
+    state: absent
+
+
+# 在 openEuler 中使用chrony 代替 systemd-timesyncd
+
+
+- name: Install chrony package
+  dnf:
+    name: chrony
+    state: present
+
+- name: Configure chronyd service
+  template:
+    src: chrony.j2
+    dest: /etc/chrony.conf
+
+- name: Restart chronyd.service
+  systemd:
+    name: chronyd.service
+    state: restarted
+    enabled: yes
+
+# 2024-07-22 systemd-timesyncd uses less memory  and doesnot listen 123/udp or 323/udp port
+#- name: Install systemd-timesyncd
+#  dnf:
+#    name: systemd-timesyncd
+#    state: present
+#
+#- name: Configure systemd-timesyncd
+#  template:
+#    src: timesyncd-conf.j2
+#    dest: /etc/systemd/timesyncd.conf
+#
+#- name: Start systemd-timesyncd
+#  systemd:
+#    name: systemd-timesyncd.service
+#    state: restarted
+#    enabled: yes

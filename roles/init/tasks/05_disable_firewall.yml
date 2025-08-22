@@ -1,0 +1,15 @@
+---
+# Disable firewall
+- name: Disable firewalld and iptables service
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
+    - firewalld.service
+    - iptables.service
+  ignore_errors: true
+
+- name: Flush iptables rules
+  command: iptables -F
+  ignore_errors: true

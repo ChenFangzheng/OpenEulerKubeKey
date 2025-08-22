@@ -1,0 +1,11 @@
+---
+# Only for openEuler release 22.03 (LTS)
+- name: Make sure /etc/openEuler-release existing
+  command: cat /etc/openEuler-release
+  register: openEuler_release
+
+- name: Exit if is not openEuler 22.03 LTS
+  fail:
+    msg: "Unsupported distribution."
+  when: openEuler_release.stdout != "openEuler release 22.03 LTS"
+

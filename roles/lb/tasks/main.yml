@@ -1,0 +1,4 @@
+---
+- include: 01_install_pkgs.yml
+- include: 02_haproxy.yml
+- include: 03_keepalived.yml

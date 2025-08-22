@@ -1,0 +1,26 @@
+---
+# - hosts: test
+#   gather_facts: false
+#   roles:
+#     - test
+
+- hosts: lb
+  gather_facts: false
+  roles:
+    # LoadBalancer for K8S:
+    #   - apisever (control-plane endpoint)
+    #   - ingress LB
+    - lb
+
+- hosts: k8s
+  gather_facts: false
+  roles:
+    # Prepare os environment
+    - init
+    # Install container runtime for k8s 可选
+#    - containerd
+    # Install docker runtime for k8s 可选
+    - docker
+    # # Install kubeadm and create k8s cluster
+    - cluster
+

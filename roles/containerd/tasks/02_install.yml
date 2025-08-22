@@ -1,0 +1,48 @@
+---
+- name: Download containerd package
+  # get_url: # Download from github
+  #   url: https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/cri-containerd-cni-{{ containerd_version }}-linux-amd64.tar.gz
+  #   dest: /tmp/cri-containerd-cni-{{ containerd_version }}-linux-amd64.tar.gz
+  get_url: # Download from internal file server
+#    url: http://192.168.161.1/cri-containerd-cni-{{ containerd_version }}-linux-amd64.tar.gz
+    url: "file://{{ playbook_dir }}/cri-containerd-cni-{{ containerd_version }}-linux-amd64.tar.gz"
+    dest: /tmp/cri-containerd-cni-{{ containerd_version }}-linux-amd64.tar.gz
+
+- name: Untar containerd package
+  unarchive:
+    src: /tmp/cri-containerd-cni-{{ containerd_version }}-linux-amd64.tar.gz
+    dest: /
+    remote_src: yes
+
+- name: Create containerd directory
+  file:
+    path: /etc/containerd
+    state: directory
+
+- name: Generate containerd default configurations
+  shell: containerd config default > /etc/containerd/config.toml
+
+- name: Containerd use the systemd cgroup driver
+  replace: 
+    path: /etc/containerd/config.toml
+    regexp: '(SystemdCgroup =).*'
+    replace: '\1 true'
+
+- name: Containerd overriding the sandbox (pause) image
+  replace: 
+    path: /etc/containerd/config.toml
+    regexp: '(sandbox_image =).*'
+    replace: '\1 "hub.qwer.com/google_containers/pause:3.9"'
+  
+- name: Start containerd
+  systemd:
+    name: containerd.service
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+# Replace runc
+# 不需要替换, openEuler 22.03 LTS 默认安装 libseccomp-2.5.3
+# - name: Download libseccomp
+# - name: Build libseccomp
+# - name: Download runc

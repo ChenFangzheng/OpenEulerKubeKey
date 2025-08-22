@@ -1,0 +1,11 @@
+---
+# Prepare networkmanager for Calico CNI
+- name: Add calico.conf to NetworkManager
+  copy:
+    src: nm-calico.conf
+    dest: /etc/NetworkManager/conf.d/calico.conf
+
+- name: Reload NetworkManager
+  systemd: 
+    name: NetworkManager.service
+    state: restarted

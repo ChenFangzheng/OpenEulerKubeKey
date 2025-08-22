@@ -1,0 +1,10 @@
+---
+master_ip_1: 192.168.0.106
+master_ip_2: 192.168.0.107
+master_ip_3: 192.168.0.108
+ingress_ip1: 192.168.0.106
+ingress_ip2: 192.168.0.107
+keepalived_interface: "ens3"
+keepalived_vip: 192.168.0.106
+keepalived_master: 192.168.0.106
+keepalived_backup: 192.168.0.106

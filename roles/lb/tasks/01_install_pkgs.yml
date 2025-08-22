@@ -1,0 +1,10 @@
+---
+# Install keepalived and haproxy
+- name: Install keepalived and haproxy
+  dnf:
+    name: 
+      - keepalived
+      - haproxy
+    state: present
+
+    

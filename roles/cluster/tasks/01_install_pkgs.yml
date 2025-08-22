@@ -1,0 +1,34 @@
+---
+- name: Install kubeadm kubelet
+  dnf: 
+    name: 
+      - kubeadm
+      - kubelet
+      - cri-tools
+    state: present
+  when: is_worker == 1
+
+- name: Install kubectl
+  dnf: 
+    name: kubectl
+    state: present
+  when: is_master == 1
+
+- name: Kubelet use systemd cgroup driver
+  copy: 
+    src: kubelet
+    dest: /etc/sysconfig/kubelet
+  when: is_worker == 1
+
+- name: Enable kubelet
+  systemd: 
+    name: kubelet.service
+    enabled: yes
+  when: is_worker == 1
+  notify:
+    - Restart OS
+    - Wait for server come back
+
+- name: Flush handlers
+  meta: flush_handlers
+

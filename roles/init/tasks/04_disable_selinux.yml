@@ -1,0 +1,15 @@
+---
+# Disable SELinux
+- name: Switch selinux to permissive
+  command: setenforce 0
+  ignore_errors: true
+
+- name: Set selinux to disabled when system boot
+  # replace: 
+  #   path: /etc/selinux/config
+  #   regexp: "^SELINUX=enforcing$"
+  #   replace: "SELINUX=disabled"
+  shell: |
+    [ -f /etc/selinux/config ] && \
+    sed -i 's/^SELINUX=.*$/SELINUX=disabled/' /etc/selinux/config
+  ignore_errors: true

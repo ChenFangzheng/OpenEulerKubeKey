@@ -1,0 +1,3 @@
+---
+- include: 01_prepare.yml
+- include: 02_install.yml

@@ -1,0 +1,7 @@
+---
+- name: Add worker to cluster
+  shell: |
+    kubeadm join {{ control_plane_endpoint }} \
+      --token {{ kubeadm_token[0] }} \
+      --discovery-token-ca-cert-hash {{ discovery_tocken_ca_cert_hash[0] }} 
+  when: (is_master == 0) and (is_worker == 1)

@@ -1,0 +1,13 @@
+---
+# Haproxy
+- name: Generate haproxy.cfg
+  template:
+    src: haproxy-cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+
+- name: Enabld and start haproxy.service
+  systemd:
+    name: haproxy.service
+    state: restarted
+    enabled: true
+

@@ -1,0 +1,25 @@
+---
+# Add host record to /etc/hosts
+- name: Add host record
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "^{{ item.ip }}"
+    line: "{{ item.ip }} {{ item.hostname }}"
+    state: present
+  with_items: "{{ k8s_master }}"
+
+# Add DNS server
+- name: Add dns server to nic
+  nmcli:
+    conn_name: "{{ nic_name }}"
+    type: ethernet
+    dns4: "{{ dns_server }}"
+    state: present
+
+# Set usedns=no when DNS is configured
+- name: Disable sshd's usedns 
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^UseDNS.*'
+    line: 'UseDNS no'
+    state: present

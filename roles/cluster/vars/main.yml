@@ -1,0 +1,9 @@
+---
+k8s_version_release: v1.29.3
+pod_cidr: 192.169.0.0/16
+service_cidr: 172.23.0.0/17
+cri_socket: "unix:///var/run/containerd/containerd.sock"
+image_repository: hub.qwer.com/google_containers
+registry: "hub.qwer.com/"
+helm_version: 3.14.4
+control_plane_endpoint: "192.168.0.106:6443"
