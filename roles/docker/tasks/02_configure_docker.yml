@@ -10,13 +10,12 @@
   copy:
     content: |
       {
-        "exec-opts": ["native.cgroupdriver=systemd"],  # 与 kubelet 一致的 cgroup 驱动
         "log-driver": "json-file",
         "log-opts": {
           "max-size": "100m"
         },
         "storage-driver": "overlay2",
-        "registry-mirrors": ["http://{{ registry }}"]  # 使用内部仓库加速
+        "registry-mirrors": ["http://registry.cn-hangzhou.aliyuncs.com/google_containers"]
       }
     dest: /etc/docker/daemon.json
 
