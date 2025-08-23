@@ -4,3 +4,4 @@
 - include: 03_add_master.yml
 - include: 04_add_worker.yml
 - include: 05_install_helm.yml
+- include: 06_install_cni_kubeovn.yml

@@ -13,7 +13,7 @@
       --control-plane-endpoint {{ control_plane_endpoint }} \
       --apiserver-advertise-address {{ inventory_hostname }} \
       --cri-socket {{ cri_socket }} \
-      --image-repository k8s.gcr.io \
+      --image-repository {{ image_repository }} \
       --ignore-preflight-errors=ImagePull
       --upload-certs | tee /tmp/kubeadm-init.log
   when: (is_init is defined) and (is_init == 1)

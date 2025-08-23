@@ -75,8 +75,8 @@ ansible-playbook -i hosts.ini install_k8s.yml
 
 #### 方式2：通过部署脚本运行（自动预处理环境）
 ```bash
-chmod +x install.sh
-./install.sh  # 会自动禁用Swap、关闭防火墙等，并执行部署剧本
+chmod +x install_kube_ovn.sh
+./install_kube_ovn.sh  # 会自动禁用Swap、关闭防火墙等，并执行部署剧本
 ```
 
 
@@ -114,6 +114,45 @@ kubectl get pods -n kube-system
 # 查看Calico网络插件状态
 kubectl get pods -n calico-system
 ```
+
+
+## 脚本文件说明
+以下是仓库中所有`.sh`脚本的功能说明：
+
+1. **`install.sh`**
+    - 功能：部署流程封装脚本，自动化执行环境预处理及部署任务。
+    - 主要操作：
+        - 禁用Swap分区并注释`/etc/fstab`中的Swap配置
+        - 关闭并禁用firewalld防火墙
+        - 临时关闭SELinux并配置永久关闭（需重启生效）
+        - 调用Ansible剧本执行集群部署（`ansible-playbook -i hosts.ini install_k8s.yml`）
+    - 使用方式：`chmod +x install.sh && ./install.sh`
+
+2. **`dhcp_to_static.sh`**
+    - 功能：将openEuler 22.03 LTS系统的DHCP网络配置转换为静态IP配置。
+    - 主要操作：
+        - 自动检测活动网络接口及当前DHCP分配的IP、子网掩码、网关和DNS
+        - 计算子网掩码（从CIDR转换）并备份原有网络配置
+        - 修改网络接口配置文件（`/etc/sysconfig/network-scripts/ifcfg-<接口名>`）
+        - 重启网络服务使配置生效
+    - 使用方式：`sudo ./dhcp_to_static.sh`（需root权限执行）
+
+3. **`kube_clear.sh`**
+    - 功能：清理Kubernetes集群残留数据，用于重置集群环境。
+    - 主要操作：
+        - 执行`kubeadm reset --force`重置集群配置
+        - 删除kubelet工作目录（`/var/lib/kubelet`）和etcd数据目录（`/var/lib/etcd`）
+        - 清理Kubernetes配置文件（`/etc/kubernetes`和`~/.kube/config`）
+        - 停止并删除Kubernetes相关容器及镜像
+    - 使用方式：`./kube_clear.sh`
+
+4. **`export_k8s_images.sh`**
+    - 功能：导出Kubernetes集群所需的镜像，用于离线环境部署。
+    - 主要操作：
+        - 批量导出指定的Kubernetes组件镜像（如kube-apiserver、kube-controller-manager等）
+        - 将镜像保存为`.tar`文件（命名格式：`镜像名-版本.tar`）
+        - 输出导出结果（成功/失败信息）
+    - 使用说明：脚本内包含需导出的镜像列表，可根据需求修改后执行
 
 ### **核心优势**
 1. **全自动化部署**  
