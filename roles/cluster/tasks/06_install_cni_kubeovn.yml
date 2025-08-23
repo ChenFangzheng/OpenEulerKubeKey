@@ -1,0 +1,67 @@
+# roles/cluster/tasks/06_install_cni_kubeovn.yml
+- name: 等待 kube-system 命名空间就绪
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: Namespace
+    name: kube-system
+    state: present
+  register: ns_ready
+  until: ns_ready is succeeded
+  retries: 10
+  delay: 5
+
+- name: 下载 kube-ovn 官方部署 YAML（适配 Kubernetes 1.29）
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/kubeovn/kube-ovn/release-1.12/yamls/kube-ovn.yaml"
+    dest: "/tmp/kube-ovn.yaml"
+    mode: '0644'
+  when: inventory_hostname == groups['k8s'] | selectattr('is_init', 'equalto', 1) | list | first
+
+- name: 适配 openEuler 系统（修改 kube-ovn 镜像仓库，加速拉取）
+  ansible.builtin.replace:
+    path: "/tmp/kube-ovn.yaml"
+    regexp: 'docker.io/kubeovn/'
+    replace: 'registry.cn-hangzhou.aliyuncs.com/kubeovn/'  # 阿里云镜像源，避免外网依赖
+  when: inventory_hostname == groups['k8s'] | selectattr('is_init', 'equalto', 1) | list | first
+
+- name: 部署 kube-ovn 网络插件（仅在初始化节点执行）
+  kubernetes.core.k8s:
+    src: "/tmp/kube-ovn.yaml"
+    state: present
+  when: inventory_hostname == groups['k8s'] | selectattr('is_init', 'equalto', 1) | list | first
+
+- name: 等待 kube-ovn 命名空间创建
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: Namespace
+    name: kube-ovn
+    state: present
+  register: ovn_ns_ready
+  until: ovn_ns_ready is succeeded
+  retries: 10
+  delay: 5
+  when: inventory_hostname == groups['k8s'] | selectattr('is_init', 'equalto', 1) | list | first
+
+- name: 等待 kube-ovn 核心组件就绪（最多等待 5 分钟）
+  kubernetes.core.k8s_info:
+    kind: Pod
+    namespace: kube-ovn
+    label_selectors:
+      - app.kubernetes.io/name=kube-ovn
+  register: ovn_pods
+  until:
+    - ovn_pods.resources | length > 0
+    - ovn_pods.resources | json_query('[?status.phase != `Running`]') | length == 0
+  retries: 30
+  delay: 10
+  when: inventory_hostname == groups['k8s'] | selectattr('is_init', 'equalto', 1) | list | first
+
+- name: 验证 kube-ovn 网络插件状态
+  ansible.builtin.command: kubectl get pods -n kube-ovn
+  register: ovn_status
+  when: inventory_hostname == groups['k8s'] | selectattr('is_init', 'equalto', 1) | list | first
+
+- name: 打印 kube-ovn 部署结果
+  ansible.builtin.debug:
+    msg: "{{ ovn_status.stdout_lines }}"
+  when: inventory_hostname == groups['k8s'] | selectattr('is_init', 'equalto', 1) | list | first

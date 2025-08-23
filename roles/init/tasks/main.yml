@@ -9,5 +9,4 @@
 - include: 07_hosts_dns.yml
 - include: 08_import_ca_cert.yml
 - include: 09_setup_ipvs.yml
-- include: 10_setup_nm.yaml
 - include: 99_fix_bugs.yml
