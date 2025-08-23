@@ -1,4 +1,4 @@
-# OpenEulerKubeKey：openEuler系统上的Kubernetes自动化部署工具
+# openEuler系统上的Kubernetes自动化部署工具
 
 ## 仓库简介
 该仓库是一个基于Ansible的自动化部署工具，专为在openEuler 22.03 LTS系统上部署Kubernetes（k8s）1.29版本集群设计。通过预设的角色和任务流程，可实现集群环境的快速搭建，提高部署效率和一致性。
@@ -42,8 +42,8 @@
 ### 1. 准备仓库
 将仓库克隆到Ansible控制节点，并进入仓库目录：
 ```bash
-git clone <仓库地址> ansible-openeuler-k8s129
-cd ansible-openeuler-k8s129
+git clone <仓库地址> 
+cd <仓库目录>
 ```
 
 
