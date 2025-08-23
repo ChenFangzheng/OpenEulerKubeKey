@@ -51,7 +51,7 @@
     - { name: "kube-proxy", target: "kube-proxy", tag: "v1.29.3" }
     - { name: "pause", target: "pause", tag: "3.9" }
     - { name: "etcd", target: "etcd", tag: "3.5.16-0" }
-    - { name: "coredns", target: "coredns/coredns", tag: "v1.11.1" }  # coredns镜像名特殊处理
+    - { name: "coredns", target: "coredns", tag: "v1.11.1" }  # coredns镜像名特殊处理
 
 - name: Install kubectl
   dnf: 
