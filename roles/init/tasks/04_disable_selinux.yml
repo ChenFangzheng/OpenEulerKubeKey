@@ -1,7 +1,22 @@
 ---
+
+# 首先收集系统信息，确保获取到SELinux状态
+- name: Gather SELinux facts
+  setup:
+    filter: 'ansible_selinux'
+  tags: selinux
+
+# 检查ansible_selinux是否已定义，未定义时设置默认值
+- name: Set default SELinux status if undefined
+  set_fact:
+    ansible_selinux: {"status": "disabled"}
+  when: ansible_selinux is undefined
+
 # Disable SELinux
 - name: Switch selinux to permissive
   command: setenforce 0
+  when:
+    - ansible_selinux.status == 'enabled'  # 仅当SELinux启用时执行
   ignore_errors: true
 
 - name: Set selinux to disabled when system boot
@@ -12,4 +27,6 @@
   shell: |
     [ -f /etc/selinux/config ] && \
     sed -i 's/^SELINUX=.*$/SELINUX=disabled/' /etc/selinux/config
+  when:
+    - ansible_selinux.status == 'enabled'  # 仅当SELinux启用时执行
   ignore_errors: true

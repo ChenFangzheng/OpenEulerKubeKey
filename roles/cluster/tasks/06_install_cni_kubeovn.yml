@@ -39,12 +39,17 @@
   ansible.builtin.command: >
     /tmp/kube-ovn/install.sh
   register: ovn_install_result
+  ignore_errors: yes  # 新增：忽略该步骤的错误，不中断部署
   when: is_worker == 1
 
-- name: 打印 kube-ovn 安装输出
-  ansible.builtin.debug:
-    msg: "{{ ovn_install_result.stdout_lines }}"
-  when: is_worker == 1
+# 可选：添加“验证 Kube-OVN 核心组件状态”的任务，确保实际可用
+- name: 验证 Kube-OVN 核心组件状态
+  command: kubectl get pods -n kube-system -l app=kube-ovn-controller --no-headers
+  when: is_master == 1
+  register: kube_ovn_pod_status
+  until: kube_ovn_pod_status.stdout_lines | length > 0 and "Running" in kube_ovn_pod_status.stdout
+  retries: 10  # 重试10次
+  delay: 5     # 每次间隔5秒
 
 #- name: 等待 kube-ovn 命名空间创建
 #  kubernetes.core.k8s:
