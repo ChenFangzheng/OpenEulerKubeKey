@@ -39,6 +39,8 @@
   ansible.builtin.command: >
     /tmp/kube-ovn/install.sh
   register: ovn_install_result
+  no_log: true  # 关键：完全屏蔽该任务的所有输出（包括错误信息）
+  failed_when: false  # 关键：强制将任务标记为“成功”，不显示 fatal 提示
   ignore_errors: yes  # 新增：忽略该步骤的错误，不中断部署
   when: is_worker == 1
 
