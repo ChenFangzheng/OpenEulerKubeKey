@@ -116,7 +116,7 @@ for file in "${CONFIG_FILES[@]}"; do
 done
 
 # 更新 nic_name（在 init/vars/main.yml 中）
-echo "更新 roles/init/vars/main.yml 中的 nic_name 为 $$INTERFACE"
+echo "更新 roles/init/vars/main.yml 中的 nic_name 为 $INTERFACE"
 sed -i "s/^nic_name: .*/nic_name: \"$INTERFACE\"/" roles/init/vars/main.yml
 
 # 更新 keepalived_interface（在 lb/vars/main.yml 中）
