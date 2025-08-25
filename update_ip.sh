@@ -65,6 +65,7 @@ FILES=(
     "roles/init/vars/main.yml"
     "roles/lb/vars/main.yml"
     "roles/test/vars/main.yml"
+    "roles/cluster/vars/main.yml"
 )
 
 DIRS=(
