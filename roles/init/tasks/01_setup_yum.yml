@@ -8,25 +8,74 @@
     - absent
     - directory
 
+# 网络连通性检查：测试多个公共域名，判断是否有互联网连接
+- name: Check internet connectivity
+  shell: |
+    # 测试多个常见公共域名，只要有一个可达就视为有网络
+    for host in baidu.com aliyun.com hao123.com; do
+      if ping -c 1 -W 3 $host >/dev/null 2>&1; then
+        echo "online"
+        exit 0
+      fi
+    done
+    echo "offline"
+  register: internet_status
+  changed_when: false
+
+
+- name: Remove existing local.repo if present
+  file:
+    path: /etc/yum.repos.d/local.repo
+    state: absent
+
 - name: Get repo file - openEuler.repo
   copy: 
     src: "openEuler.repo"
     dest: "/etc/yum.repos.d/openEuler.repo"
+  when: internet_status.stdout == "online"
 
 - name: Get repo file - k8s.repo
   template:
     src: k8s-repo.j2
     dest: /etc/yum.repos.d/k8s.repo
+  when: internet_status.stdout == "online"
 
-# - name: Set up openEuler 22.03 LTS SP1 repository
-#   shell: |
-#     curl http://192.168.161.1/openEuler-22.03-LTS-SP2.repo \
-#       -o /etc/yum.repos.d/openEuler-22.03-LTS-SP1.repo
 
-# - name: Set up kubernetes repository
-#   shell: |
-#     curl http://192.168.161.1/kubernetes-v{{ k8s_version }}.repo \
-#       -o /etc/yum.repos.d/kubernetes-v{{ k8s_version }}.repo
+- name: Remove existing k8s.repo if present
+  file:
+    path: /etc/yum.repos.d/k8s.repo
+    state: absent
+  when: internet_status.stdout == "offline"
+
+- name: Remove existing openEuler.repo if present
+  file:
+    path: /etc/yum.repos.d/openEuler.repo
+    state: absent
+  when: internet_status.stdout == "offline"
+
+- name: Get repo file - local.repo
+  copy:
+    src: "local.repo"
+    dest: "/etc/yum.repos.d/local.repo"
+  when: internet_status.stdout == "offline"
+
+- name: Replace local repo path in local.repo
+  shell: |
+    CURRENT_DIR={{ playbook_dir }}  # 使用当前playbook所在目录作为基准路径
+    sed -i "s|file:///local/|file://$CURRENT_DIR/|g" /etc/yum.repos.d/local.repo
+  args:
+    executable: /bin/bash
+  when: internet_status.stdout == "offline"
+
+- name: Clean existing repodata
+  file:
+    path: "{{ playbook_dir }}/packages/repodata"
+    state: absent
+  when: internet_status.stdout == "offline"
+
+- name: Generate repository metadata
+  shell: createrepo --database {{ playbook_dir }}/packages/
+  when: internet_status.stdout == "offline"
 
 - name: Yum makecache
   command: yum makecache
