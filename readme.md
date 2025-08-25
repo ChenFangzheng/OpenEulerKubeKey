@@ -92,8 +92,8 @@ ansible-playbook -i hosts.ini install_k8s.yml
 
 #### 方式2：通过部署脚本运行（自动预处理环境）
 ```bash
-chmod +x install_kube_ovn.sh
-./install_kube_ovn.sh  # 会自动禁用Swap、关闭防火墙等，并执行部署剧本
+chmod +x install.sh
+./install.sh  # 会自动禁用Swap、关闭防火墙等，并执行部署剧本
 ```
 
 
@@ -126,10 +126,7 @@ chmod +x install_kube_ovn.sh
 kubectl get nodes
 
 # 查看系统组件状态（所有Pod应处于Running状态）
-kubectl get pods -n kube-system
-
-# 查看Calico网络插件状态
-kubectl get pods -n calico-system
+kubectl get pods -A
 ```
 
 
