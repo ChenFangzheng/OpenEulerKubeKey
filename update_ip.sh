@@ -97,3 +97,30 @@ for dir in "${DIRS[@]}"; do
 done
 
 echo "IP地址更新完成: $OLD_IP -> $NEW_IP"
+
+echo "开始更新网卡名称的配置"
+
+
+# 定义需要更新的配置文件路径
+CONFIG_FILES=(
+    "roles/init/vars/main.yml"       # 包含 nic_name
+    "roles/lb/vars/main.yml"         # 包含 keepalived_interface
+)
+
+# 检查文件是否存在
+for file in "${CONFIG_FILES[@]}"; do
+    if [ ! -f "$file" ]; then
+        echo "错误：配置文件 $file 不存在"
+        exit 1
+    fi
+done
+
+# 更新 nic_name（在 init/vars/main.yml 中）
+echo "更新 roles/init/vars/main.yml 中的 nic_name 为 $$INTERFACE"
+sed -i "s/^nic_name: .*/nic_name: \"$INTERFACE\"/" roles/init/vars/main.yml
+
+# 更新 keepalived_interface（在 lb/vars/main.yml 中）
+echo "更新 roles/lb/vars/main.yml 中的 keepalived_interface 为 $INTERFACE"
+sed -i "s/^keepalived_interface: .*/keepalived_interface: \"$INTERFACE\"/" roles/lb/vars/main.yml
+
+echo "网卡名称更新完成"

@@ -1,4 +1,5 @@
 ---
+
 # Add host record to /etc/hosts
 - name: Add host record
   lineinfile:
@@ -7,6 +8,12 @@
     line: "{{ item.ip }} {{ item.hostname }}"
     state: present
   with_items: "{{ k8s_master }}"
+
+# 设置主机名（新增任务）
+- name: Set hostname to defined value
+  command: "sudo hostnamectl set-hostname {{ item.hostname }}"
+  with_items: "{{ k8s_master }}"
+  when: inventory_hostname == item.ip  # 仅对当前节点执行对应的主机名设置
 
 # Add DNS server
 - name: Add dns server to nic

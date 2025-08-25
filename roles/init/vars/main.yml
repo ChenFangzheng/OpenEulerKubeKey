@@ -6,6 +6,6 @@ dns_server:
 k8s_version: 1.29
 nic_name: "ens33"
 k8s_master:
-  - { ip: "192.168.0.111", hostname: "oe2203p4-129-m01" }
-#  - { ip: "192.168.161.33", hostname: "oe2203sp4-129-m02" }
-#  - { ip: "192.168.161.34", hostname: "oe2203sp4-129-m03" }
+  - { ip: "192.168.0.111", hostname: "oe2203pm01" }
+#  - { ip: "192.168.161.33", hostname: "oe2203-m02" }
+#  - { ip: "192.168.161.34", hostname: "oe2203-m03" }
