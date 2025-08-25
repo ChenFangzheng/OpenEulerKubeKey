@@ -66,6 +66,23 @@ cd <仓库目录>
 192.168.0.116 lb_master=0  # 负载均衡备用节点
 ```
 
+### 3. 安装前脚本准备
+#### 步骤1：安装net-tools、glic、python3、git等基础依赖
+```bash
+chmod +x install_package.sh
+./install_package.sh 
+```
+#### 步骤2：若您的节点使用DHCP分配IP地址，建议先将其转换为静态IP
+```bash
+chmod +x dhcp_to_static.sh
+./dhcp_to_static.sh  
+```
+
+#### 步骤3：获取您的本地IP，自动修改必需的配置文件
+```bash
+chmod +x update_ip.sh
+./update_ip.sh 
+```
 
 ### 3. 执行部署
 #### 方式1：直接运行Ansible剧本
