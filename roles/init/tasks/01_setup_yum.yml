@@ -69,12 +69,12 @@
 
 - name: Clean existing repodata
   file:
-    path: "{{ playbook_dir }}/packages/repodata"
+    path: "{{ playbook_dir }}/repo/packages/repodata"
     state: absent
   when: internet_status.stdout == "offline"
 
 - name: Generate repository metadata
-  shell: createrepo --database {{ playbook_dir }}/packages/
+  shell: createrepo --database {{ playbook_dir }}/repo/packages/
   when: internet_status.stdout == "offline"
 
 - name: Yum makecache
