@@ -1,0 +1,32 @@
+---
+- name: 创建 Prometheus 命名空间
+  kubernetes.core.k8s:
+    name: monitoring
+    kind: Namespace
+    api_version: v1
+    state: present
+  when: is_master == 1
+
+- name: 复制 Prometheus 部署文件
+  copy:
+    src: "files/prometheus-deploy.yaml"
+    dest: "/tmp/prometheus-deploy.yaml"
+  when: is_master == 1
+
+- name: 部署 Prometheus
+  kubernetes.core.k8s:
+    src: "/tmp/prometheus-deploy.yaml"
+    state: present
+  when: is_master == 1
+
+- name: 复制 Grafana 部署文件
+  copy:
+    src: "files/grafana-deploy.yaml"
+    dest: "/tmp/grafana-deploy.yaml"
+  when: is_master == 1
+
+- name: 部署 Grafana
+  kubernetes.core.k8s:
+    src: "/tmp/grafana-deploy.yaml"
+    state: present
+  when: is_master == 1

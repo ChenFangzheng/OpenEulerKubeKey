@@ -19,6 +19,8 @@
     - init
     # Install docker runtime for k8s
     - docker
-    # # Install kubeadm and create k8s cluster
+    # Install kubeadm and create k8s cluster
     - cluster
+    # Install prometheus for k8s
+    - prometheus
 

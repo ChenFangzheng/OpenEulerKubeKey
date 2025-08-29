@@ -1,0 +1,28 @@
+---
+- name: 创建临时目录存放 Prometheus 镜像
+  file:
+    path: "/tmp/prometheus"
+    state: directory
+    mode: '0755'
+  when: is_worker == 1
+
+- name: 复制 Prometheus 镜像到目标节点
+  copy:
+    src: "{{ playbook_dir }}/images/{{ item }}"
+    dest: "/tmp/prometheus/{{ item }}"
+    mode: 0644
+  with_items:
+    - "prometheus-v2.45.0.tar"
+    - "node-exporter-v1.6.1.tar"
+    - "grafana-v9.5.2.tar"
+    - "kube-state-metrics-v2.9.2.tar"
+  when: is_worker == 1
+
+- name: 加载 Prometheus 镜像到 Docker
+  shell: "docker load -i /tmp/prometheus/{{ item }}"
+  with_items:
+    - "prometheus-v2.45.0.tar"
+    - "node-exporter-v1.6.1.tar"
+    - "grafana-v9.5.2.tar"
+    - "kube-state-metrics-v2.9.2.tar"
+  when: is_worker == 1

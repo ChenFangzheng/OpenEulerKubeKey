@@ -1,0 +1,3 @@
+---
+- include: 01_load_images.yml
+- include: 02_deploy_prometheus.yml
