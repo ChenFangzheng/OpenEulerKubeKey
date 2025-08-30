@@ -12,7 +12,7 @@ systemctl disable firewalld
 setenforce 0
 
 if [ ! -f "images/kube-apiserver-v1.29.3.tar" ]; then
-  cat $PWD/images/images.zip.001 $PWD/images/images.zip.002 $PWD/images/images.zip.003 $PWD/images/images.zip.004 $PWD/images/images.zip.005 > $PWD/images/images.zip
+  cat $PWD/images/images.zip.001 $PWD/images/images.zip.002 $PWD/images/images.zip.003 $PWD/images/images.zip.004 $PWD/images/images.zip.005 $PWD/images/images.zip.006 $PWD/images/images.zip.007 > $PWD/images/images.zip
   unzip $PWD/images/images.zip -d $PWD/images/
   rm -fr $PWD/images/images.zip
 fi

@@ -14,8 +14,11 @@
   with_items:
     - "prometheus-v2.45.0.tar"
     - "node-exporter-v1.6.1.tar"
-    - "grafana-v9.5.2.tar"
+    - "grafana-9.5.2.tar"
     - "kube-state-metrics-v2.9.2.tar"
+    - "alertmanager-v0.25.0.tar"
+    - "jimmidyson-configmap-reload-v0.8.0.tar"
+    - "busybox-1.35.0.tar"
   when: is_worker == 1
 
 - name: 加载 Prometheus 镜像到 Docker
@@ -23,6 +26,9 @@
   with_items:
     - "prometheus-v2.45.0.tar"
     - "node-exporter-v1.6.1.tar"
-    - "grafana-v9.5.2.tar"
+    - "grafana-9.5.2.tar"
     - "kube-state-metrics-v2.9.2.tar"
+    - "alertmanager-v0.25.0.tar"
+    - "jimmidyson-configmap-reload-v0.8.0.tar"
+    - "busybox-1.35.0.tar"
   when: is_worker == 1

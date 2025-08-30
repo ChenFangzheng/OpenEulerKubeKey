@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: monitoring
+  name: prometheus
 ---
 # Grafana Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
-  namespace: monitoring
+  namespace: prometheus
   labels:
     app: grafana
 spec:
@@ -21,6 +21,15 @@ spec:
       labels:
         app: grafana
     spec:
+      tolerations:
+        # 容忍 control-plane 节点的 NoSchedule 污点
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
+        # 可选：如果节点有其他污点（如 master 节点的旧标签），可一并容忍
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+          effect: "NoSchedule"
       containers:
         - name: grafana
           image: grafana/grafana:9.5.2
@@ -48,7 +57,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-datasources
-  namespace: monitoring
+  namespace: prometheus
 data:
   prometheus.yml: |
     apiVersion: 1
@@ -64,21 +73,22 @@ apiVersion: v1
 kind: Service
 metadata:
   name: grafana
-  namespace: monitoring
+  namespace: prometheus
 spec:
   selector:
     app: grafana
   ports:
     - port: 3000
       targetPort: 3000
-  type: ClusterIP  # 如需外部访问可改为NodePort或LoadBalancer
+      nodePort: 30093
+  type: NodePort  # 如需外部访问可改为NodePort或LoadBalancer
 ---
 # 可选：Grafana 控制台仪表盘配置（Kubernetes监控面板）
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-dashboards
-  namespace: monitoring
+  namespace: prometheus
 data:
   k8s-cluster-dashboard.json: |
     {
@@ -118,7 +128,7 @@ data:
       },
       "timepicker": {},
       "timezone": "",
-      "title": "Kubernetes Cluster Monitoring",
+      "title": "Kubernetes Cluster prometheus",
       "uid": "k8s-cluster",
       "version": 1
     }
@@ -128,7 +138,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana-dashboard-loader
-  namespace: monitoring
+  namespace: prometheus
   labels:
     app: grafana-dashboard-loader
 spec:
@@ -141,9 +151,18 @@ spec:
       labels:
         app: grafana-dashboard-loader
     spec:
+      tolerations:
+        # 容忍 control-plane 节点的 NoSchedule 污点
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
+        # 可选：如果节点有其他污点（如 master 节点的旧标签），可一并容忍
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+          effect: "NoSchedule"
       containers:
         - name: loader
-          image: busybox:1.35
+          image: busybox:1.35.0
           command: ["/bin/sh", "-c"]
           args:
             - |

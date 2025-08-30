@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: monitoring
+  name: prometheus
 ---
 # Prometheus Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus
-  namespace: monitoring
+  namespace: prometheus
   labels:
     app: prometheus
 spec:
@@ -21,6 +21,15 @@ spec:
       labels:
         app: prometheus
     spec:
+      tolerations:
+        # 容忍 control-plane 节点的 NoSchedule 污点
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
+        # 可选：如果节点有其他污点（如 master 节点的旧标签），可一并容忍
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+          effect: "NoSchedule"
       containers:
         - name: prometheus
           image: prom/prometheus:v2.45.0
@@ -49,7 +58,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus-config
-  namespace: monitoring
+  namespace: prometheus
 data:
   prometheus.yml: |
     global:
@@ -102,7 +111,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: node-exporter
-  namespace: monitoring
+  namespace: prometheus
   labels:
     app: node-exporter
 spec:
@@ -114,6 +123,15 @@ spec:
       labels:
         app: node-exporter
     spec:
+      tolerations:
+        # 容忍 control-plane 节点的 NoSchedule 污点
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
+        # 可选：如果节点有其他污点（如 master 节点的旧标签），可一并容忍
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+          effect: "NoSchedule"
       containers:
         - name: node-exporter
           image: prom/node-exporter:v1.6.1
@@ -142,7 +160,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kube-state-metrics
-  namespace: monitoring
+  namespace: prometheus
   labels:
     app: kube-state-metrics
 spec:
@@ -155,9 +173,18 @@ spec:
       labels:
         app: kube-state-metrics
     spec:
+      tolerations:
+        # 容忍 control-plane 节点的 NoSchedule 污点
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
+        # 可选：如果节点有其他污点（如 master 节点的旧标签），可一并容忍
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+          effect: "NoSchedule"
       containers:
         - name: kube-state-metrics
-          image: kube-state-metrics/kube-state-metrics:v2.9.2
+          image: k8s.gcr.io/kube-state-metrics/kube-state-metrics:v2.9.2
           ports:
             - containerPort: 8080
 ---
@@ -166,39 +193,42 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prometheus
-  namespace: monitoring
+  namespace: prometheus
 spec:
   selector:
     app: prometheus
   ports:
     - port: 9090
       targetPort: 9090
-  type: ClusterIP
+      nodePort: 30090
+  type: NodePort
 ---
 # Node Exporter Service
 apiVersion: v1
 kind: Service
 metadata:
   name: node-exporter
-  namespace: monitoring
+  namespace: prometheus
 spec:
   selector:
     app: node-exporter
   ports:
     - port: 9100
       targetPort: 9100
-  type: ClusterIP
+      nodePort: 30091
+  type: NodePort
 ---
 # Kube State Metrics Service
 apiVersion: v1
 kind: Service
 metadata:
   name: kube-state-metrics
-  namespace: monitoring
+  namespace: prometheus
 spec:
   selector:
     app: kube-state-metrics
   ports:
     - port: 8080
       targetPort: 8080
-  type: ClusterIP
+      nodePort: 30092
+  type: NodePort
