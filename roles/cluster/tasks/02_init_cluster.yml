@@ -1,8 +1,8 @@
 ---
-# - name: Clean up 
-#   shell: |
-#     kubeadm reset --force
-#   ignore_errors: true
+- name: Clean up kubernetes
+  shell: |
+     kubeadm reset --force
+  ignore_errors: true
 
 - name: Init cluster
   shell: |
@@ -33,22 +33,6 @@
     kubeadm_token: "{{ lookup('file', '/tmp/kubeadm-init.log') | regex_search('\\--token ([a-z0-9.]+)', '\\1') }}"
   when: (is_init is defined) and (is_init == 1)
 
-- name: 显示 certificate_key（证书密钥）
-  debug:
-    var: certificate_key  # 直接引用变量名，Ansible会自动输出变量名和值
-  when: (is_init is defined) and (is_init == 1)
-
-- name: 显示 discovery_token_ca_cert_hash（CA证书哈希）
-  debug:
-    var: discovery_token_ca_cert_hash
-  when: (is_init is defined) and (is_init == 1)
-
-- name: 显示 kubeadm_token（节点加入令牌）
-  debug:
-    var: kubeadm_token
-  when: (is_init is defined) and (is_init == 1)
-
-
 - name: 生成集群加入变量文件（初始化节点）
   copy:
     content: |
@@ -66,7 +50,6 @@
     dest: /tmp/k8s_join_vars.yml  # 控制节点存储路径（覆盖同名文件）
     flat: yes  # 禁用默认的“主机IP/路径”目录结构，直接存为 /tmp/k8s_join_vars.yml
   when: (is_init is defined) and (is_init == 1)
-
 
 # install_k8s.yml 新增任务（放在“初始化集群”之后，“添加主节点/工作节点”之前）
 - name: 向所有节点分发集群加入变量文件
