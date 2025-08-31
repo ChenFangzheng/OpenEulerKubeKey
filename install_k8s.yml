@@ -1,17 +1,4 @@
 ---
-# - hosts: test
-#   gather_facts: false
-#   roles:
-#     - test
-
-- hosts: lb
-  gather_facts: false
-  roles:
-    # LoadBalancer for K8S:
-    #   - apisever (control-plane endpoint)
-    #   - ingress LB
-    - lb
-
 - hosts: k8s
   gather_facts: false
   roles:

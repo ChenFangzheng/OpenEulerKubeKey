@@ -5,3 +5,4 @@
 - include_tasks: 04_add_worker.yml
 - include_tasks: 05_install_helm.yml
 - include_tasks: 06_install_cni_kubeovn.yml
+- include_tasks: 07_distribute_kubeconfig.yml

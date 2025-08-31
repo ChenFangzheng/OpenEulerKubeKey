@@ -16,6 +16,9 @@
     src: "{{ playbook_dir }}/images/{{ item }}"
     dest: "/tmp/{{ item }}"
     mode: 0644
+    directory_mode: 0755           # 为目录设置单独的权限（可选）
+    remote_src: no         # 表示src是本地路径，不是远程路径
+    force: yes             # 如果目标存在则覆盖
   with_items:
     - "kube-apiserver-v1.29.3.tar"
     - "kube-controller-manager-v1.29.3.tar"

@@ -1,4 +1,24 @@
 ---
+- name: Clean existing repodata
+  file:
+    path: "{{ playbook_dir }}/repo/packages/repodata"
+    state: absent
+  when: (is_init is defined) and (is_init == 1)
+
+- name: Generate repository metadata
+  shell: createrepo --database {{ playbook_dir }}/repo/packages/
+  when: (is_init is defined) and (is_init == 1)
+
+- name: 复制整个repo目录到各节点的/home目录
+  copy:
+    src: "{{ playbook_dir }}/repo"  # 源目录
+    dest: "/home/"                  # 目标父目录
+    mode: 0644
+    directory_mode: 0755           # 为目录设置单独的权限（可选）
+    remote_src: no         # 表示src是本地路径，不是远程路径
+    force: yes             # 如果目标存在则覆盖
+  when: is_worker == 1  # 所有节点都需要加载
+
 - name: Delete existed files in directory
   file: 
     path: /etc/yum.repos.d
@@ -8,74 +28,27 @@
     - absent
     - directory
 
-# 网络连通性检查：测试多个公共域名，判断是否有互联网连接
-- name: Check internet connectivity
-  shell: |
-    # 测试多个常见公共域名，只要有一个可达就视为有网络
-    for host in baidu.com aliyun.com hao123.com; do
-      if ping -c 1 -W 3 $host >/dev/null 2>&1; then
-        echo "online"
-        exit 0
-      fi
-    done
-    echo "offline"
-  register: internet_status
-  changed_when: false
-
-
 - name: Remove existing local.repo if present
   file:
     path: /etc/yum.repos.d/local.repo
     state: absent
 
-- name: Get repo file - openEuler.repo
-  copy: 
-    src: "openEuler.repo"
-    dest: "/etc/yum.repos.d/openEuler.repo"
-  when: internet_status.stdout == "online"
-
-- name: Get repo file - k8s.repo
-  template:
-    src: k8s-repo.j2
-    dest: /etc/yum.repos.d/k8s.repo
-  when: internet_status.stdout == "online"
-
-
-- name: Remove existing k8s.repo if present
-  file:
-    path: /etc/yum.repos.d/k8s.repo
-    state: absent
-  when: internet_status.stdout == "offline"
-
 - name: Remove existing openEuler.repo if present
   file:
     path: /etc/yum.repos.d/openEuler.repo
     state: absent
-  when: internet_status.stdout == "offline"
 
 - name: Get repo file - local.repo
   copy:
     src: "local.repo"
     dest: "/etc/yum.repos.d/local.repo"
-  when: internet_status.stdout == "offline"
 
-- name: Replace local repo path in local.repo
-  shell: |
-    CURRENT_DIR={{ playbook_dir }}  # 使用当前playbook所在目录作为基准路径
-    sed -i "s|file:///local/|file://$CURRENT_DIR/|g" /etc/yum.repos.d/local.repo
-  args:
-    executable: /bin/bash
-  when: internet_status.stdout == "offline"
 
-- name: Clean existing repodata
-  file:
-    path: "{{ playbook_dir }}/repo/packages/repodata"
-    state: absent
-  when: internet_status.stdout == "offline"
 
-- name: Generate repository metadata
-  shell: createrepo --database {{ playbook_dir }}/repo/packages/
-  when: internet_status.stdout == "offline"
-
-- name: Yum makecache
-  command: yum makecache
+- name: 执行 yum makecache 更新缓存
+  yum:
+      update_cache: yes
+  register: yum_result
+  retries: 3  # 重试3次，防止网络临时问题
+  delay: 5    # 每次重试间隔5秒
+  until: yum_result is succeeded

@@ -1,4 +1,0 @@
----
-- include_tasks: 01_install_pkgs.yml
-- include_tasks: 02_haproxy.yml
-- include_tasks: 03_keepalived.yml

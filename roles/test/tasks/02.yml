@@ -1,9 +1,0 @@
----
-- name: Print log
-  shell: echo {{ datedate }}
-  when: aaa == 0
-
-- name: test shell
-  shell: |
-    # date
-    ls
