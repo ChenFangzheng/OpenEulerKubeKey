@@ -18,3 +18,5 @@ if [ ! -f "images/kube-apiserver-v1.29.3.tar" ]; then
 fi
 
 ansible-playbook -i hosts.ini install_k8s.yml -k
+
+rm -fr $PWD/images/*.tar
