@@ -8,6 +8,4 @@
     - docker
     # Install kubeadm and create k8s cluster
     - cluster
-    # Install prometheus for k8s
-    - prometheus
 
