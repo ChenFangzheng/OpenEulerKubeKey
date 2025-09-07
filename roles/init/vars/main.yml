@@ -9,4 +9,4 @@ k8s_version: 1.29
 nic_name: "ens33"
 k8s_master:
   - { ip: "192.168.0.119", hostname: "oe2203m01" }
-  - { ip: "192.168.0.120", hostname: "oe2203m02" }
+  - { ip: "192.168.0.121", hostname: "oe2203m02" }
