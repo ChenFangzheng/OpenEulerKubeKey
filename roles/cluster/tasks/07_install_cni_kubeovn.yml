@@ -1,14 +1,10 @@
-# roles/cluster/tasks/06_install_cni_kubeovn.yml
-#- name: 等待 kube-system 命名空间就绪
-#  kubernetes.core.k8s:
-#    api_version: v1
-#    kind: Namespace
-#    name: kube-system
-#    state: present
-#  register: ns_ready
-#  until: ns_ready is succeeded
-#  retries: 10
-#  delay: 5
+---
+- name: Enable and start openvswitch service
+  systemd:
+    name: openvswitch
+    enabled: yes
+    state: started
+    daemon_reload: yes
 
 - name: 创建临时目录存放 kube-ovn 安装脚本
   ansible.builtin.file:
@@ -52,32 +48,6 @@
   until: kube_ovn_pod_status.stdout_lines | length > 0 and "Running" in kube_ovn_pod_status.stdout
   retries: 10  # 重试10次
   delay: 5     # 每次间隔5秒
-
-#- name: 等待 kube-ovn 命名空间创建
-#  kubernetes.core.k8s:
-#    api_version: v1
-#    kind: Namespace
-#    name: kube-ovn
-#    state: present
-#  register: ovn_ns_ready
-#  until: ovn_ns_ready is succeeded
-#  retries: 10
-#  delay: 5
-#  when: inventory_hostname == groups['k8s'] | selectattr('is_init', 'equalto', 1) | list | first
-
-#- name: 等待 kube-ovn 核心组件就绪（最多等待 5 分钟）
-#  kubernetes.core.k8s_info:
-#    kind: Pod
-#    namespace: kube-ovn
-#    label_selectors:
-#      - app.kubernetes.io/name=kube-ovn
-#  register: ovn_pods
-#  until:
-#    - ovn_pods.resources | length > 0
-#    - ovn_pods.resources | json_query('[?status.phase != `Running`]') | length == 0
-#  retries: 30
-#  delay: 10
-#  when: inventory_hostname == groups['k8s'] | selectattr('is_init', 'equalto', 1) | list | first
 
 - name: 验证 kube-ovn 网络插件状态
   ansible.builtin.command: kubectl get pods -n kube-ovn
