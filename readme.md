@@ -27,8 +27,6 @@
 ## 主要功能
 1. **环境准备**：通过`init`角色标准化系统环境，确保满足Kubernetes部署的前置条件（如内核参数、依赖库等）。
 2. **容器运行时部署**：通过`docker`角色安装Docker及cri-dockerd，配置与Kubernetes兼容的运行时环境。
-3. **负载均衡配置**：通过`lb`角色部署haproxy（流量转发）和keepalived（VIP高可用），保障控制平面稳定性。
-4. **Kubernetes集群部署**：通过`cluster`角色完成集群初始化、节点加入、网络插件（Calico）安装及包管理工具（Helm）配置。
 
 
 ## 部署步骤
@@ -87,7 +85,7 @@ chmod +x update_ip.sh
 ### 3. 执行部署
 #### 方式1：直接运行Ansible剧本
 ```bash
-ansible-playbook -i hosts.ini install_k8s.yml
+ansible-playbook -i hosts.ini install_k8s.yml -k
 ```
 
 #### 方式2：通过部署脚本运行（自动预处理环境）
@@ -98,25 +96,14 @@ chmod +x install.sh
 
 
 ### 4. 部署流程说明
-1. **负载均衡部署（`[lb]`节点）**：
-  - 安装haproxy和keepalived（`lb/01_install_pkgs.yml`）。
-  - 配置haproxy转发Kubernetes API Server流量（`lb/02_haproxy.yml`）。
-  - 配置keepalived实现VIP高可用（`lb/03_keepalived.yml`）。
-
-2. **系统环境初始化（`[k8s]`节点）**：
+1**系统环境初始化（`[k8s]`节点）**：
   - 检查操作系统版本、配置yum源、安装基础依赖（`init`角色任务）。
   - 禁用SELinux、防火墙、Swap，配置NTP时间同步、主机DNS和IPVS规则。
   - 修复openEuler系统特定问题（如sysctl配置、tmp.mount屏蔽）。
 
-3. **容器运行时部署（`[k8s]`节点）**：
+2. **容器运行时部署（`[k8s]`节点）**：
   - 安装Docker（从本地tgz包）及cri-dockerd（`docker`角色任务）。
   - 配置cgroup驱动（与kubelet一致）、镜像仓库加速等（`docker/02_configure_docker.yml`）。
-
-4. **Kubernetes集群部署（`[k8s]`节点）**：
-  - 安装kubeadm、kubelet、kubectl（`cluster/01_install_pkgs.yml`）。
-  - 初始化集群（仅`is_init=1`节点执行，`cluster/02_init_cluster.yml`）。
-  - 其他主节点和工作节点加入集群（`cluster/03_add_master.yml`、`cluster/04_add_worker.yml`）。
-  - 安装Helm工具（`cluster/05_install_helm.yml`）和Calico网络插件（`cluster/06_install_cni_calico.yml`）。
 
 
 ### 5. 验证部署结果
